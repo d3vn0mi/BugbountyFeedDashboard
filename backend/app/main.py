@@ -1,16 +1,15 @@
 import asyncio
 import logging
 import time
-from collections import defaultdict
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import delete
 
-from app.config import REFRESH_INTERVAL_SECONDS, ALLOWED_ORIGINS, RATE_LIMIT_RPM
+from app.config import REFRESH_INTERVAL_SECONDS, ALLOWED_ORIGINS, RATE_LIMIT_RPM, ADMIN_TOKEN
 from app.database import engine, async_session
 from app.models import Base, Program
 from app.routers.programs import router as programs_router
@@ -32,20 +31,31 @@ ALL_SCRAPERS = [
 ]
 
 
-# Simple in-memory rate limiter (per-IP, sliding window)
-_rate_buckets: dict[str, list[float]] = defaultdict(list)
+# In-memory rate limiter with bounded storage (per-IP, sliding window)
+_rate_buckets: dict[str, list[float]] = {}
+_MAX_TRACKED_IPS = 10000
 
 
 def check_rate_limit(client_ip: str) -> bool:
     """Return True if request is allowed, False if rate-limited."""
     now = time.monotonic()
-    window = 60.0  # 1 minute
-    bucket = _rate_buckets[client_ip]
-    # Purge old entries
-    _rate_buckets[client_ip] = [t for t in bucket if now - t < window]
-    if len(_rate_buckets[client_ip]) >= RATE_LIMIT_RPM:
+    window = 60.0
+
+    # Evict stale IPs if we exceed the cap
+    if len(_rate_buckets) > _MAX_TRACKED_IPS:
+        stale = [ip for ip, ts in _rate_buckets.items() if not ts or now - ts[-1] > window]
+        for ip in stale:
+            del _rate_buckets[ip]
+
+    bucket = _rate_buckets.get(client_ip, [])
+    bucket = [t for t in bucket if now - t < window]
+
+    if len(bucket) >= RATE_LIMIT_RPM:
+        _rate_buckets[client_ip] = bucket
         return False
-    _rate_buckets[client_ip].append(now)
+
+    bucket.append(now)
+    _rate_buckets[client_ip] = bucket
     return True
 
 
@@ -133,6 +143,9 @@ app = FastAPI(
     description="Aggregated bug bounty programs from multiple platforms",
     version="1.0.0",
     lifespan=lifespan,
+    docs_url=None,      # disable Swagger UI in production
+    redoc_url=None,      # disable ReDoc in production
+    openapi_url=None,    # disable OpenAPI schema in production
 )
 
 app.add_middleware(
@@ -160,7 +173,11 @@ app.include_router(programs_router)
 
 
 @app.post("/api/refresh")
-async def trigger_refresh():
-    """Manually trigger a data refresh."""
+async def trigger_refresh(authorization: str = Header(None)):
+    """Manually trigger a data refresh. Requires ADMIN_TOKEN."""
+    if not ADMIN_TOKEN:
+        raise HTTPException(status_code=403, detail="Refresh endpoint disabled (no ADMIN_TOKEN configured)")
+    if authorization != f"Bearer {ADMIN_TOKEN}":
+        raise HTTPException(status_code=401, detail="Invalid or missing authorization token")
     await refresh_programs()
     return {"status": "ok", "refreshed_at": datetime.now(timezone.utc).isoformat()}

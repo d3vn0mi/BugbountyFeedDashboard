@@ -12,6 +12,15 @@ from app.schemas import ProgramOut, ProgramListResponse, DashboardStats, Platfor
 
 router = APIRouter(prefix="/api", tags=["programs"])
 
+# Whitelist sortable columns to prevent arbitrary attribute access
+ALLOWED_SORT_COLUMNS = {"name", "platform", "reward_min", "reward_max", "status", "last_updated", "fetched_at"}
+
+
+def _get_sort_column(sort_by: str):
+    if sort_by not in ALLOWED_SORT_COLUMNS:
+        sort_by = "name"
+    return getattr(Program, sort_by)
+
 
 @router.get("/programs", response_model=ProgramListResponse)
 async def list_programs(
@@ -78,7 +87,7 @@ async def list_programs(
         count_query = count_query.where(and_(*filters))
 
     # Sorting
-    sort_column = getattr(Program, sort_by, Program.name)
+    sort_column = _get_sort_column(sort_by)
     if sort_order == "desc":
         query = query.order_by(sort_column.desc())
     else:
@@ -156,7 +165,7 @@ async def export_programs_csv(
     if filters:
         query = query.where(and_(*filters))
 
-    sort_column = getattr(Program, sort_by, Program.name)
+    sort_column = _get_sort_column(sort_by)
     if sort_order == "desc":
         query = query.order_by(sort_column.desc())
     else:
