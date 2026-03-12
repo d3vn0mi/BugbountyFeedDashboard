@@ -17,7 +17,22 @@ A unified dashboard that aggregates bug bounty programs from multiple platforms,
 
 ## Getting Started
 
-### Backend
+### Docker (Recommended)
+
+```bash
+docker compose up -d
+```
+
+Dashboard available at `http://localhost:3000`. Backend auto-fetches programs on startup.
+
+```bash
+docker compose logs -f backend    # Watch scraper activity
+docker compose down               # Stop all services
+```
+
+### Local Development
+
+**Backend:**
 
 ```bash
 cd backend
@@ -27,7 +42,7 @@ python run.py
 
 The API runs at `http://localhost:8000`. Docs at `http://localhost:8000/docs`.
 
-### Frontend
+**Frontend:**
 
 ```bash
 cd frontend
