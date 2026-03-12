@@ -15,7 +15,7 @@ from app.scrapers.hackerone import HackerOneScraper
 from app.scrapers.bugcrowd import BugcrowdScraper
 from app.scrapers.intigriti import IntigritiScraper
 from app.scrapers.immunefi import ImmunefiScraper
-from app.scrapers.hackenproof import HackenProofScraper
+from app.scrapers.yeswehack import YesWeHackScraper
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ ALL_SCRAPERS = [
     BugcrowdScraper,
     IntigritiScraper,
     ImmunefiScraper,
-    HackenProofScraper,
+    YesWeHackScraper,
 ]
 
 

@@ -4,11 +4,11 @@ from .base import BaseScraper
 
 logger = logging.getLogger(__name__)
 
-GITHUB_URL = "https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/intigriti_data.json"
+GITHUB_URL = "https://raw.githubusercontent.com/arkadiyt/bounty-targets-data/main/data/yeswehack_data.json"
 
 
-class IntigritiScraper(BaseScraper):
-    platform = "intigriti"
+class YesWeHackScraper(BaseScraper):
+    platform = "yeswehack"
     base_url = GITHUB_URL
 
     async def fetch_programs(self) -> list[dict]:
@@ -24,68 +24,61 @@ class IntigritiScraper(BaseScraper):
                     if normalized:
                         programs.append(normalized)
                 except Exception as e:
-                    logger.warning(f"Intigriti normalize error: {e}")
+                    logger.warning(f"YesWeHack normalize error: {e}")
 
         except Exception as e:
-            logger.error(f"Intigriti fetch error: {e}")
+            logger.error(f"YesWeHack fetch error: {e}")
 
-        logger.info(f"Intigriti: fetched {len(programs)} programs")
+        logger.info(f"YesWeHack: fetched {len(programs)} programs")
         return programs
 
     def normalize(self, raw: dict) -> dict | None:
         name = raw.get("name", "")
-        handle = raw.get("handle", "")
-        if not name and not handle:
+        prog_id = raw.get("id", "")
+        if not name and not prog_id:
             return None
 
-        # Filter: only open and public
-        status = raw.get("status", "")
-        if status and status != "open":
+        # Filter: only public and enabled
+        if not raw.get("public", True):
             return None
-        conf_level = raw.get("confidentiality_level", "public")
-        if conf_level != "public":
+        if raw.get("disabled", False):
             return None
 
-        # Bounty info
         reward_min = None
         reward_max = None
         min_bounty = raw.get("min_bounty")
         max_bounty = raw.get("max_bounty")
-        if isinstance(min_bounty, dict):
-            val = min_bounty.get("value")
-            if val is not None:
-                reward_min = int(float(val))
-        elif min_bounty is not None:
-            reward_min = int(float(min_bounty))
-
-        if isinstance(max_bounty, dict):
-            val = max_bounty.get("value")
-            if val is not None:
-                reward_max = int(float(val))
-        elif max_bounty is not None:
-            reward_max = int(float(max_bounty))
+        if min_bounty is not None:
+            try:
+                reward_min = int(float(min_bounty))
+            except (ValueError, TypeError):
+                pass
+        if max_bounty is not None:
+            try:
+                reward_max = int(float(max_bounty))
+            except (ValueError, TypeError):
+                pass
 
         # Scope
         assets = []
         asset_types = set()
         targets = raw.get("targets", {})
         for scope in targets.get("in_scope", []):
-            endpoint = scope.get("endpoint", "")
+            target = scope.get("target", "")
             stype = scope.get("type", "")
-            if endpoint:
-                assets.append(endpoint)
+            if target:
+                assets.append(target)
             if stype:
                 asset_types.add(stype.lower())
 
-        url = raw.get("url", "")
-        if not url and handle:
-            url = f"https://www.intigriti.com/programs/{handle}/detail"
+        managed = raw.get("managed")
 
         return {
-            "id": self.make_id(handle or name.lower().replace(" ", "-")),
-            "name": name or handle,
+            "id": self.make_id(prog_id or name.lower().replace(" ", "-")),
+            "name": name,
             "platform": self.platform,
-            "platform_url": url or "https://www.intigriti.com/researchers/bug-bounty-programs",
+            "platform_url": f"https://yeswehack.com/programs/{prog_id}"
+            if prog_id else "https://yeswehack.com/programs",
             "reward_min": reward_min,
             "reward_max": reward_max,
             "reward_range": self.format_reward_range(reward_min, reward_max),
@@ -93,7 +86,7 @@ class IntigritiScraper(BaseScraper):
             "asset_types": list(asset_types),
             "status": "open",
             "response_time": None,
-            "managed": False,
+            "managed": bool(managed),
             "logo_url": None,
             "description": None,
             "last_updated": datetime.now(timezone.utc),

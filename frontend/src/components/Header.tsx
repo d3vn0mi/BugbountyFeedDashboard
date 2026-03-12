@@ -5,7 +5,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   bugcrowd: "bg-orange-500",
   intigriti: "bg-blue-600",
   immunefi: "bg-cyan-600",
-  hackenproof: "bg-green-600",
+  yeswehack: "bg-red-600",
 };
 
 interface HeaderProps {

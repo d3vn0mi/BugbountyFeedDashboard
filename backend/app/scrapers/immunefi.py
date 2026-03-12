@@ -1,47 +1,30 @@
-import json
 import logging
 from datetime import datetime, timezone
-from bs4 import BeautifulSoup
 from .base import BaseScraper
 
 logger = logging.getLogger(__name__)
 
+GITHUB_URL = "https://raw.githubusercontent.com/infosec-us-team/Immunefi-Bug-Bounty-Programs-Unofficial/main/projects.json"
+
 
 class ImmunefiScraper(BaseScraper):
     platform = "immunefi"
-    base_url = "https://immunefi.com/bug-bounty/"
+    base_url = GITHUB_URL
 
     async def fetch_programs(self) -> list[dict]:
         programs = []
         try:
-            # Immunefi embeds program data as JSON in their Next.js page
-            resp = await self.client.get(self.base_url)
+            resp = await self.client.get(self.base_url, timeout=30.0)
             resp.raise_for_status()
+            data = resp.json()
 
-            soup = BeautifulSoup(resp.text, "html.parser")
-
-            # Try to find Next.js data script
-            for script in soup.find_all("script", {"id": "__NEXT_DATA__"}):
+            for entry in data:
                 try:
-                    data = json.loads(script.string)
-                    bounties = (
-                        data.get("props", {})
-                        .get("pageProps", {})
-                        .get("bounties", [])
-                    )
-                    for entry in bounties:
-                        try:
-                            programs.append(self.normalize(entry))
-                        except Exception as e:
-                            logger.warning(f"Immunefi normalize error: {e}")
-                    if programs:
-                        break
-                except json.JSONDecodeError:
-                    continue
-
-            # Fallback: try JSON API endpoint
-            if not programs:
-                programs = await self._fetch_api()
+                    normalized = self.normalize(entry)
+                    if normalized:
+                        programs.append(normalized)
+                except Exception as e:
+                    logger.warning(f"Immunefi normalize error: {e}")
 
         except Exception as e:
             logger.error(f"Immunefi fetch error: {e}")
@@ -49,71 +32,52 @@ class ImmunefiScraper(BaseScraper):
         logger.info(f"Immunefi: fetched {len(programs)} programs")
         return programs
 
-    async def _fetch_api(self) -> list[dict]:
-        """Try Immunefi's API endpoints."""
-        programs = []
-        try:
-            # Try the v2 bounties endpoint
-            resp = await self.client.get(
-                "https://immunefi.com/api/bounty",
-                headers={"Accept": "application/json"},
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                entries = data if isinstance(data, list) else data.get("data", data.get("bounties", []))
-                for entry in entries:
-                    try:
-                        programs.append(self.normalize(entry))
-                    except Exception as e:
-                        logger.warning(f"Immunefi API normalize error: {e}")
-        except Exception as e:
-            logger.warning(f"Immunefi API fallback error: {e}")
-        return programs
-
-    def normalize(self, raw: dict) -> dict:
-        slug = raw.get("id", raw.get("slug", ""))
-        name = raw.get("project", raw.get("name", slug))
+    def normalize(self, raw: dict) -> dict | None:
+        name = raw.get("project", "")
+        slug = raw.get("slug", "")
+        if not name and not slug:
+            return None
 
         reward_max = None
-        max_reward = raw.get("maxBounty") or raw.get("maximum_reward") or raw.get("maxReward")
-        if max_reward is not None:
+        max_bounty = raw.get("maxBounty")
+        if max_bounty is not None:
             try:
-                reward_max = int(float(str(max_reward).replace(",", "")))
+                reward_max = int(float(str(max_bounty).replace(",", "")))
             except (ValueError, TypeError):
                 pass
 
-        reward_min = None
-        min_reward = raw.get("minBounty") or raw.get("minimum_reward")
-        if min_reward is not None:
-            try:
-                reward_min = int(float(str(min_reward).replace(",", "")))
-            except (ValueError, TypeError):
-                pass
-
-        # Assets
+        # Assets from the summary
         assets = []
         asset_types = set()
         for asset in raw.get("assets", []):
             if isinstance(asset, dict):
-                target = asset.get("target", asset.get("url", ""))
+                target = asset.get("url", asset.get("target", ""))
                 atype = asset.get("type", "")
                 if target:
                     assets.append(str(target))
                 if atype:
                     asset_types.add(str(atype).lower())
 
-        # Infer asset types from category
-        category = raw.get("category", "").lower()
-        if "smart" in category or "contract" in category:
-            asset_types.add("smart_contract")
-        if "web" in category:
-            asset_types.add("web")
+        # Infer types from programType
+        for pt in raw.get("programType", []):
+            pt_lower = pt.lower()
+            if "smart contract" in pt_lower:
+                asset_types.add("smart_contract")
+            elif "web" in pt_lower:
+                asset_types.add("web")
+            elif "blockchain" in pt_lower:
+                asset_types.add("blockchain")
 
-        launch_date = raw.get("launchDate") or raw.get("date")
-        total_paid = raw.get("totalPaidAmount")
-        description = raw.get("description") or ""
-        if total_paid:
-            description = f"Total paid: ${total_paid:,}. {description}" if isinstance(total_paid, (int, float)) else description
+        if not asset_types:
+            asset_types.add("web3")
+
+        rewards_token = raw.get("rewardsToken", "USD")
+        reward_range = self.format_reward_range(None, reward_max)
+        if rewards_token and rewards_token != "USD" and reward_max:
+            reward_range = f"Up to ${reward_max:,} {rewards_token}"
+
+        ecosystem = raw.get("ecosystem", [])
+        description = ", ".join(ecosystem) if ecosystem else None
 
         return {
             "id": self.make_id(slug or name.lower().replace(" ", "-")),
@@ -121,16 +85,16 @@ class ImmunefiScraper(BaseScraper):
             "platform": self.platform,
             "platform_url": f"https://immunefi.com/bug-bounty/{slug}/information/"
             if slug else "https://immunefi.com/bug-bounty/",
-            "reward_min": reward_min,
+            "reward_min": None,
             "reward_max": reward_max,
-            "reward_range": self.format_reward_range(reward_min, reward_max),
+            "reward_range": reward_range,
             "assets": assets[:20],
-            "asset_types": list(asset_types) or ["web3"],
+            "asset_types": list(asset_types),
             "status": "open",
             "response_time": None,
             "managed": False,
-            "logo_url": raw.get("logo") or raw.get("logoUrl"),
-            "description": (description or "")[:500],
+            "logo_url": None,
+            "description": description,
             "last_updated": datetime.now(timezone.utc),
             "fetched_at": datetime.now(timezone.utc),
         }

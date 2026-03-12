@@ -15,14 +15,14 @@ interface FilterPanelProps {
   onSortChange: (field: string, order: string) => void;
 }
 
-const ASSET_TYPES = ["web", "api", "mobile", "smart_contract", "hardware", "web3", "iot"];
+const ASSET_TYPES = ["web", "web-application", "api", "mobile", "smart_contract", "blockchain", "web3", "url", "wildcard"];
 
 const PLATFORM_LABELS: Record<string, string> = {
   hackerone: "HackerOne",
   bugcrowd: "Bugcrowd",
   intigriti: "Intigriti",
   immunefi: "Immunefi",
-  hackenproof: "HackenProof",
+  yeswehack: "YesWeHack",
 };
 
 export default function FilterPanel({

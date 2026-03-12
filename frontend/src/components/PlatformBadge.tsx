@@ -3,7 +3,7 @@ const PLATFORM_CONFIG: Record<string, { label: string; color: string }> = {
   bugcrowd: { label: "Bugcrowd", color: "bg-orange-100 text-orange-800 border-orange-200" },
   intigriti: { label: "Intigriti", color: "bg-blue-100 text-blue-800 border-blue-200" },
   immunefi: { label: "Immunefi", color: "bg-cyan-100 text-cyan-800 border-cyan-200" },
-  hackenproof: { label: "HackenProof", color: "bg-green-100 text-green-800 border-green-200" },
+  yeswehack: { label: "YesWeHack", color: "bg-red-100 text-red-800 border-red-200" },
 };
 
 interface PlatformBadgeProps {
