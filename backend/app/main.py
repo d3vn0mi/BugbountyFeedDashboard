@@ -86,8 +86,11 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # Initial data fetch
-    await refresh_programs()
+    # Initial data fetch (non-blocking: server starts even if scrapers fail)
+    try:
+        await refresh_programs()
+    except Exception as e:
+        logger.error(f"Initial refresh failed (will retry later): {e}")
 
     # Start periodic refresh
     stop_event = asyncio.Event()
