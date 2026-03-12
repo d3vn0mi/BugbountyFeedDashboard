@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { Program } from "../api";
+import { isSafeUrl } from "../utils";
 import PlatformBadge from "./PlatformBadge";
 
 interface ProgramModalProps {
@@ -151,17 +152,19 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
           </div>
 
           {/* Action */}
-          <a
-            href={program.platform_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 w-full justify-center bg-brand-red hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors text-sm"
-          >
-            View on {program.platform.charAt(0).toUpperCase() + program.platform.slice(1)}
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
+          {isSafeUrl(program.platform_url) && (
+            <a
+              href={program.platform_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 w-full justify-center bg-brand-red hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors text-sm"
+            >
+              View on {program.platform.charAt(0).toUpperCase() + program.platform.slice(1)}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
         </div>
       </div>
     </div>

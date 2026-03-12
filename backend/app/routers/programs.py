@@ -24,16 +24,16 @@ def _get_sort_column(sort_by: str):
 
 @router.get("/programs", response_model=ProgramListResponse)
 async def list_programs(
-    search: str = Query(None, description="Search by name or description"),
-    platform: str = Query(None, description="Comma-separated platform filter"),
-    min_reward: int = Query(None, ge=0, description="Minimum reward"),
-    max_reward: int = Query(None, ge=0, description="Maximum reward"),
-    asset_type: str = Query(None, description="Filter by asset type"),
-    status: str = Query(None, description="Filter by status (open/paused)"),
-    scope_search: str = Query(None, description="Search within asset/scope names"),
-    sort_by: str = Query("name", description="Sort field"),
-    sort_order: str = Query("asc", description="Sort direction (asc/desc)"),
-    page: int = Query(1, ge=1),
+    search: str = Query(None, max_length=200, description="Search by name or description"),
+    platform: str = Query(None, max_length=100, description="Comma-separated platform filter"),
+    min_reward: int = Query(None, ge=0, le=100_000_000, description="Minimum reward"),
+    max_reward: int = Query(None, ge=0, le=100_000_000, description="Maximum reward"),
+    asset_type: str = Query(None, max_length=50, description="Filter by asset type"),
+    status: str = Query(None, max_length=20, description="Filter by status (open/paused)"),
+    scope_search: str = Query(None, max_length=200, description="Search within asset/scope names"),
+    sort_by: str = Query("name", max_length=30, description="Sort field"),
+    sort_order: str = Query("asc", max_length=4, description="Sort direction (asc/desc)"),
+    page: int = Query(1, ge=1, le=10000),
     per_page: int = Query(25, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
@@ -116,15 +116,15 @@ async def list_programs(
 
 @router.get("/programs/export")
 async def export_programs_csv(
-    search: str = Query(None),
-    platform: str = Query(None),
-    min_reward: int = Query(None, ge=0),
-    max_reward: int = Query(None, ge=0),
-    asset_type: str = Query(None),
-    status: str = Query(None),
-    scope_search: str = Query(None),
-    sort_by: str = Query("name"),
-    sort_order: str = Query("asc"),
+    search: str = Query(None, max_length=200),
+    platform: str = Query(None, max_length=100),
+    min_reward: int = Query(None, ge=0, le=100_000_000),
+    max_reward: int = Query(None, ge=0, le=100_000_000),
+    asset_type: str = Query(None, max_length=50),
+    status: str = Query(None, max_length=20),
+    scope_search: str = Query(None, max_length=200),
+    sort_by: str = Query("name", max_length=30),
+    sort_order: str = Query("asc", max_length=4),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Program)
