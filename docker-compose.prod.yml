@@ -1,0 +1,34 @@
+# Production override: adds Caddy for SSL + security headers
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  # Override frontend: remove external port (Caddy handles it)
+  frontend:
+    ports: !override []
+
+  # Lock down CORS in production
+  backend:
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:////app/data/bugbounty.db
+      - CACHE_TTL_SECONDS=3600
+      - REFRESH_INTERVAL_SECONDS=3600
+      - ALLOWED_ORIGINS=https://bughunting.d3vn0mi.com
+
+volumes:
+  caddy-data:
+  caddy-config:

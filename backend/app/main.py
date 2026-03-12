@@ -1,13 +1,16 @@
 import asyncio
 import logging
+import time
+from collections import defaultdict
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy import delete
 
-from app.config import REFRESH_INTERVAL_SECONDS
+from app.config import REFRESH_INTERVAL_SECONDS, ALLOWED_ORIGINS, RATE_LIMIT_RPM
 from app.database import engine, async_session
 from app.models import Base, Program
 from app.routers.programs import router as programs_router
@@ -27,6 +30,23 @@ ALL_SCRAPERS = [
     ImmunefiScraper,
     YesWeHackScraper,
 ]
+
+
+# Simple in-memory rate limiter (per-IP, sliding window)
+_rate_buckets: dict[str, list[float]] = defaultdict(list)
+
+
+def check_rate_limit(client_ip: str) -> bool:
+    """Return True if request is allowed, False if rate-limited."""
+    now = time.monotonic()
+    window = 60.0  # 1 minute
+    bucket = _rate_buckets[client_ip]
+    # Purge old entries
+    _rate_buckets[client_ip] = [t for t in bucket if now - t < window]
+    if len(_rate_buckets[client_ip]) >= RATE_LIMIT_RPM:
+        return False
+    _rate_buckets[client_ip].append(now)
+    return True
 
 
 async def refresh_programs():
@@ -109,7 +129,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Bug Bounty Feed Dashboard",
+    title="d3vn0mi Bug Bounty Feed",
     description="Aggregated bug bounty programs from multiple platforms",
     version="1.0.0",
     lifespan=lifespan,
@@ -117,11 +137,24 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown").split(",")[0].strip()
+    if not check_rate_limit(client_ip):
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests. Please try again later."},
+            headers={"Retry-After": "60"},
+        )
+    return await call_next(request)
+
 
 app.include_router(programs_router)
 
