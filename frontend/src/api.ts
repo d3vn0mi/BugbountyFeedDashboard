@@ -36,6 +36,8 @@ export interface DashboardStats {
   total_programs: number;
   platforms: PlatformStats[];
   last_refresh: string | null;
+  highest_bounty: number | null;
+  total_open: number;
 }
 
 export interface ProgramFilters {
@@ -45,6 +47,7 @@ export interface ProgramFilters {
   max_reward?: number;
   asset_type?: string;
   status?: string;
+  scope_search?: string;
   sort_by?: string;
   sort_order?: string;
   page?: number;
@@ -75,4 +78,14 @@ export async function fetchPlatforms(): Promise<PlatformStats[]> {
   const resp = await fetch(`${API_BASE}/platforms`);
   if (!resp.ok) throw new Error(`API error: ${resp.status}`);
   return resp.json();
+}
+
+export function getExportUrl(filters: ProgramFilters): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== undefined && value !== null && value !== "" && key !== "page" && key !== "per_page") {
+      params.set(key, String(value));
+    }
+  }
+  return `${API_BASE}/programs/export?${params}`;
 }

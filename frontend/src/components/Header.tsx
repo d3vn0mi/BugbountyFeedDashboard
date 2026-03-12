@@ -1,4 +1,5 @@
 import type { DashboardStats } from "../api";
+import ThemeToggle from "./ThemeToggle";
 
 const PLATFORM_COLORS: Record<string, string> = {
   hackerone: "bg-purple-600",
@@ -28,7 +29,11 @@ export default function Header({ stats, loading }: HeaderProps) {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             {loading ? (
-              <span className="text-gray-400 text-sm">Loading...</span>
+              <div className="flex gap-2 animate-pulse">
+                <div className="h-7 w-24 bg-gray-700 rounded-lg" />
+                <div className="h-6 w-20 bg-gray-700 rounded-md" />
+                <div className="h-6 w-20 bg-gray-700 rounded-md" />
+              </div>
             ) : stats ? (
               <>
                 <span className="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-medium">
@@ -44,6 +49,7 @@ export default function Header({ stats, loading }: HeaderProps) {
                 ))}
               </>
             ) : null}
+            <ThemeToggle />
           </div>
         </div>
         {stats?.last_refresh && (

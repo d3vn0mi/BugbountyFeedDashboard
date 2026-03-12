@@ -40,3 +40,5 @@ class DashboardStats(BaseModel):
     total_programs: int
     platforms: list[PlatformStats]
     last_refresh: datetime | None = None
+    highest_bounty: int | None = None
+    total_open: int = 0
