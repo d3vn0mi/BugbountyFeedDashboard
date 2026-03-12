@@ -41,7 +41,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={cycle}
-      className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+      className="p-2 rounded-lg text-brand-muted hover:text-brand-cyan hover:bg-brand-surface transition-colors"
       title={`Theme: ${theme}`}
     >
       {theme === "light" && (

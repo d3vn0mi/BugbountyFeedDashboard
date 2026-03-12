@@ -21,13 +21,13 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+      <div className="bg-white dark:bg-brand-surface rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-gray-200 dark:border-brand-border">
+        <div className="sticky top-0 bg-white dark:bg-brand-surface border-b border-gray-200 dark:border-brand-border px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3 min-w-0">
             {program.logo_url ? (
               <img
@@ -39,7 +39,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
                 }}
               />
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-brand-pill flex items-center justify-center flex-shrink-0">
                 <span className="text-gray-400 font-bold text-sm">
                   {program.name.charAt(0).toUpperCase()}
                 </span>
@@ -53,7 +53,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
                 <span
                   className={`w-2 h-2 rounded-full ${statusColor}`}
                 />
-                <span className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                <span className="text-sm text-gray-500 dark:text-brand-text capitalize">
                   {program.status}
                 </span>
               </div>
@@ -61,7 +61,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-brand-pill transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -82,7 +82,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
               </span>
             )}
             {program.response_time && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-gray-500 dark:text-brand-muted">
                 Response: {program.response_time}
               </span>
             )}
@@ -94,7 +94,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Description
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-brand-text">
                 {program.description}
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
                 {program.asset_types.map((t) => (
                   <span
                     key={t}
-                    className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md capitalize"
+                    className="text-xs text-gray-600 dark:text-brand-text bg-gray-100 dark:bg-brand-pill px-2 py-0.5 rounded-md capitalize"
                   >
                     {t.replace("_", " ")}
                   </span>
@@ -125,12 +125,12 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Scope ({program.assets.length} targets)
               </h3>
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 max-h-48 overflow-y-auto">
+              <div className="bg-gray-50 dark:bg-brand-bg rounded-lg p-3 max-h-48 overflow-y-auto border border-gray-100 dark:border-brand-border">
                 <ul className="space-y-1">
                   {program.assets.map((asset, i) => (
                     <li
                       key={i}
-                      className="text-xs text-gray-600 dark:text-gray-400 font-mono"
+                      className="text-xs text-gray-600 dark:text-brand-text font-mono"
                     >
                       {asset}
                     </li>
@@ -141,7 +141,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
           )}
 
           {/* Metadata */}
-          <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
+          <div className="text-xs text-gray-400 dark:text-brand-muted space-y-1">
             {program.last_updated && (
               <p>Last updated: {new Date(program.last_updated).toLocaleString()}</p>
             )}
@@ -155,7 +155,7 @@ export default function ProgramModal({ program, onClose }: ProgramModalProps) {
             href={program.platform_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 w-full justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors text-sm"
+            className="inline-flex items-center gap-2 w-full justify-center bg-brand-red hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-xl transition-colors text-sm"
           >
             View on {program.platform.charAt(0).toUpperCase() + program.platform.slice(1)}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

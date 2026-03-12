@@ -22,7 +22,7 @@ export default function ProgramCard({ program, isFavorite, onToggleFavorite, onC
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow p-5 cursor-pointer"
+      className="bg-white dark:bg-brand-surface rounded-xl border border-gray-200 dark:border-brand-border shadow-sm hover:shadow-md dark:hover:border-brand-border-hover transition-all p-5 cursor-pointer"
       onClick={() => onClick(program)}
     >
       <div className="flex items-start justify-between gap-3">
@@ -37,7 +37,7 @@ export default function ProgramCard({ program, isFavorite, onToggleFavorite, onC
               }}
             />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-brand-pill flex items-center justify-center flex-shrink-0">
               <span className="text-gray-400 font-bold text-sm">
                 {program.name.charAt(0).toUpperCase()}
               </span>
@@ -92,7 +92,7 @@ export default function ProgramCard({ program, isFavorite, onToggleFavorite, onC
         {program.asset_types.slice(0, 4).map((t) => (
           <span
             key={t}
-            className="text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-md capitalize"
+            className="text-gray-600 dark:text-brand-text bg-gray-100 dark:bg-brand-pill px-2 py-0.5 rounded-md capitalize"
           >
             {t.replace("_", " ")}
           </span>
@@ -136,7 +136,7 @@ export default function ProgramCard({ program, isFavorite, onToggleFavorite, onC
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+          className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-brand-cyan hover:text-blue-800 dark:hover:text-cyan-300 transition-colors"
         >
           View Program
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

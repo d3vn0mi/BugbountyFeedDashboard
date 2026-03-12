@@ -202,29 +202,29 @@ export default function Dashboard() {
     : programs;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-brand-bg">
       <Header stats={stats} loading={statsLoading} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         {/* Stats cards */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Total Programs</p>
+            <div className="bg-white dark:bg-brand-surface rounded-xl border border-gray-200 dark:border-brand-border p-4">
+              <p className="text-xs text-gray-500 dark:text-brand-muted uppercase font-medium">Total Programs</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total_programs.toLocaleString()}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Platforms</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.platforms.length}</p>
+            <div className="bg-white dark:bg-brand-surface rounded-xl border border-gray-200 dark:border-brand-border p-4">
+              <p className="text-xs text-gray-500 dark:text-brand-muted uppercase font-medium">Platforms</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-brand-cyan mt-1">{stats.platforms.length}</p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Highest Bounty</p>
+            <div className="bg-white dark:bg-brand-surface rounded-xl border border-gray-200 dark:border-brand-border p-4">
+              <p className="text-xs text-gray-500 dark:text-brand-muted uppercase font-medium">Highest Bounty</p>
               <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                 {stats.highest_bounty != null ? `$${stats.highest_bounty.toLocaleString()}` : "N/A"}
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-medium">Open Programs</p>
+            <div className="bg-white dark:bg-brand-surface rounded-xl border border-gray-200 dark:border-brand-border p-4">
+              <p className="text-xs text-gray-500 dark:text-brand-muted uppercase font-medium">Open Programs</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.total_open.toLocaleString()}</p>
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function Dashboard() {
         {/* Programs grid */}
         {!loading && !error && displayPrograms.length > 0 && (
           <>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            <p className="text-sm text-gray-500 dark:text-brand-text mb-4">
               Showing {favoritesOnly ? `${displayPrograms.length} favorite` : total.toLocaleString()} program{(favoritesOnly ? displayPrograms.length : total) !== 1 ? "s" : ""}
               {search && (
                 <span>

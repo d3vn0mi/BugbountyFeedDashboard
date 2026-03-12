@@ -43,8 +43,8 @@ function countActiveFilters(props: FilterPanelProps): number {
   return count;
 }
 
-const selectClass = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm";
-const inputClass = "w-24 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-2.5 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm";
+const selectClass = "bg-white dark:bg-brand-surface border border-gray-300 dark:border-brand-border rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-cyan shadow-sm";
+const inputClass = "w-24 bg-white dark:bg-brand-surface border border-gray-300 dark:border-brand-border rounded-lg px-2.5 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-cyan shadow-sm";
 
 export default function FilterPanel(props: FilterPanelProps) {
   const {
@@ -89,7 +89,7 @@ export default function FilterPanel(props: FilterPanelProps) {
       {/* Reward range */}
       <div className="flex items-center gap-1.5">
         <input type="number" placeholder="Min $" value={minReward} onChange={(e) => onMinRewardChange(e.target.value)} className={inputClass} />
-        <span className="text-gray-400 dark:text-gray-500 text-sm">-</span>
+        <span className="text-gray-400 dark:text-brand-muted text-sm">-</span>
         <input type="number" placeholder="Max $" value={maxReward} onChange={(e) => onMaxRewardChange(e.target.value)} className={inputClass} />
       </div>
 
@@ -99,7 +99,7 @@ export default function FilterPanel(props: FilterPanelProps) {
         placeholder="Search scope..."
         value={scopeSearch}
         onChange={(e) => onScopeSearchChange(e.target.value)}
-        className="w-32 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-2.5 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+        className="w-32 bg-white dark:bg-brand-surface border border-gray-300 dark:border-brand-border rounded-lg px-2.5 py-2 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-cyan shadow-sm"
       />
 
       {/* Sort */}
@@ -124,7 +124,7 @@ export default function FilterPanel(props: FilterPanelProps) {
         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
           favoritesOnly
             ? "bg-yellow-50 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-400"
-            : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-yellow-300"
+            : "bg-white dark:bg-brand-surface border-gray-300 dark:border-brand-border text-gray-600 dark:text-brand-text hover:border-yellow-300"
         }`}
       >
         <svg className="w-4 h-4" fill={favoritesOnly ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ export default function FilterPanel(props: FilterPanelProps) {
       {/* CSV export */}
       <button
         onClick={onExport}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-brand-surface border border-gray-300 dark:border-brand-border text-gray-600 dark:text-brand-text hover:bg-gray-50 dark:hover:bg-brand-pill transition-colors shadow-sm"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -151,14 +151,14 @@ export default function FilterPanel(props: FilterPanelProps) {
       {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="md:hidden flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 shadow-sm w-full justify-center"
+        className="md:hidden flex items-center gap-2 px-4 py-2 bg-white dark:bg-brand-surface border border-gray-300 dark:border-brand-border rounded-lg text-sm text-gray-700 dark:text-gray-300 shadow-sm w-full justify-center"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
         </svg>
         Filters
         {activeCount > 0 && (
-          <span className="bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+          <span className="bg-brand-red text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
             {activeCount}
           </span>
         )}
